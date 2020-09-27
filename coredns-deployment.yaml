@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: coredns
-        image: coredns
+        image: coredns/coredns
         ports:
         - containerPort: 53
