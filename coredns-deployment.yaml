@@ -18,4 +18,4 @@ spec:
       - name: coredns
         image: coredns/coredns
         ports:
-        - containerPort: 53
+        - containerPort: 65353
