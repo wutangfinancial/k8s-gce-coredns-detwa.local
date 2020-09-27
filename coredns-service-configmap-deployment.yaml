@@ -1,34 +1,17 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: coredns
 spec:
-  ports:
-  - name: coredns
-    port: 53
-    protocol: UDP
-    targetPort: 53
   selector:
     app: coredns
   type: LoadBalancer
-
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: game-demo
-# data:
-#   # property-like keys; each key maps to a simple value
-#   player_initial_lives: "3"
-#   ui_properties_file_name: "user-interface.properties"
-#   #
-#   # file-like keys
-#   game.properties: |
-#     enemy.types=aliens,monsters
-#     player.maximum-lives=5
-#   user-interface.properties: |
-#     color.good=purple
-#     color.bad=yellow
-#     allow.textmode=true
+  ports:
+    - name: coredns
+      port: 53
+      protocol: UDP
+      targetPort: 53
 
 ---
 apiVersion: v1
@@ -37,20 +20,14 @@ metadata:
   name: coredns-config
 data:
   Corefile: |
-    enemy.types=aliens,monsters
-    player.maximum-lives=5
-#   Corefile: |
-#     . {
-#         errors
-#         log
-#         debug
-#         health
-#         forward . tls://9.9.9.9 {
-#             tls_servername dns.quad9.net
-#             health_check 5s
-#         }
-#         cache 30
-#     }
+     . {
+         errors
+         log
+         debug
+         health
+         forward . 8.8.8.8
+         cache 30
+     }
 
 ---
 apiVersion: apps/v1
@@ -70,27 +47,27 @@ spec:
         app: coredns
     spec:
       containers:
-      - name: coredns
-        image:coredns/coredns
-        imagePullPolicy: IfNotPresent
-        args: [ "-conf", "/etc/coredns/Corefile" ]
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/coredns
-        ports:
-        - containerPort: 53
-          name: dns
-          protocol: UDP
-        - containerPort: 53
-          name: dns-tcp
-          protocol: TCP
-        - containerPort: 9153
-          name: metrics
-          protocol: TCP
+        - name: coredns
+          image: coredns/coredns
+          imagePullPolicy: IfNotPresent
+          args: ["-conf", "/etc/coredns/Corefile"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/coredns
+          ports:
+            - containerPort: 53
+              name: dns
+              protocol: UDP
+            - containerPort: 53
+              name: dns-tcp
+              protocol: TCP
+            - containerPort: 9153
+              name: metrics
+              protocol: TCP
       volumes:
-      - name: config-volume
-        configMap:
-          name: coredns-config
-          items:
-          - key: Corefile
-            path: Corefile
+        - name: config-volume
+          configMap:
+            name: coredns-config
+            items:
+              - key: Corefile
+                path: Corefile
