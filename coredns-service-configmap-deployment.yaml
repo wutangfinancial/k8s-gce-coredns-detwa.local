@@ -25,7 +25,6 @@ data:
         debug
         health
         forward . tls://9.9.9.9 {
-            except raspberrypi higgs libreelec gluon brik flo master node0 node1 node2
             tls_servername dns.quad9.net
             health_check 5s
         }
