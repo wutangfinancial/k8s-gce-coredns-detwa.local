@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: coredns-config
+  name: coredns
 data:
   Corefile: |
      . {
@@ -26,14 +26,78 @@ data:
          debug
          health
          forward . 8.8.8.8
-         cache 30
+         file db.detwa.home detwa.home
+         file db.192.168.0 0.168.192.in-addr.arpa
      }
+  db.detwa.home: |
+     $TTL    604800
+     @    IN    SOA    dns1.detwa.home. admin.detwa.home. (
+                       3        ; Serial
+                  604800        ; Refresh
+                   86400        ; Retry
+                 2419200        ; Expire
+                  604800 )    ; Negative Cache TTL
+     ;
+     ; name servers - NS records
+     @    IN    NS    dns1
+     ; 192.168.0.0/24 - A records
+     ubnt.detwa.home.    IN    A    192.168.0.1
+     syslog.detwa.home.    IN    A    192.168.0.50
+     unifi.detwa.home.    IN    A    192.168.0.52
+     chef.detwa.home.    IN    A    192.168.0.55
+     chefdk.detwa.home.    IN    A    192.168.0.56
+     dns.detwa.home.    IN    A    192.168.0.60
+     docker.detwa.home.    IN    A    192.168.0.62
+     ftp.detwa.home.    IN    A    192.168.0.63
+     terraform.detwa.home.    IN    A    192.168.0.64
+     dns1.detwa.home.    IN    A    192.168.0.70
+     miro.detwa.home.    IN    A    192.168.0.112
+     locke.detwa.home.    IN    A    192.168.0.152
+     hue.detwa.home.    IN    A    192.168.0.154
+     laserbeak.detwa.home.   IN   A   192.168.0.187
+     valentine.detwa.home.    IN    A    192.168.0.188
+     unifiACLite.detwa.home.    IN    A    192.168.0.199
+     demosthenes.detwa.home.    IN    A    192.168.0.201
+     discoveryone.detwa.home.    IN    A    192.168.0.222
+     mazer.detwa.home.    IN    A    192.168.0.253
+  db.192.168.0: |
+     $TTL    604800
+     @    IN    SOA    dns1.detwa.home. admin.detwa.home. (
+                       3        ; Serial
+                  604800        ; Refresh
+                   86400        ; Retry
+                 2419200        ; Expire
+                  604800 )    ; Negative Cache TTL
+     ;
+     ; name servers - NS records
+     @   IN    NS    dns1.detwa.home.
+     ; PTR records
+     1       IN  PTR	ubnt.detwa.home.
+     50      IN  PTR	syslog.detwa.home.
+     52      IN  PTR	unifi.detwa.home.
+     55      IN  PTR	chef.detwa.home.
+     56      IN  PTR	chefdk.detwa.home.
+     60      IN  PTR	dns.detwa.home.
+     62      IN  PTR	docker.detwa.home.
+     63      IN  PTR	ftp.detwa.home.
+     64      IN  PTR	terraform.detwa.home.
+     70      IN  PTR	dns1.detwa.home.
+     112     IN  PTR	miro.detwa.home.
+     152     IN  PTR	locke.detwa.home.
+     154     IN  PTR	hue.detwa.home.
+     186     IN  PTR	pingree.detwa.home.
+     187     IN  PTR	laserbeak.detwa.home.
+     188     IN  PTR	valentine.detwa.home.
+     199     IN  PTR	unifiACLite.detwa.home.
+     201     IN  PTR	demosthenes.detwa.home.
+     222     IN  PTR	discoveryone.detwa.home.
+     253     IN  PTR	mazer.detwa.home.
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: coredns-deployment
+  name: coredns
   labels:
     app: coredns
 spec:
@@ -67,7 +131,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: coredns-config
+            name: coredns
             items:
               - key: Corefile
                 path: Corefile
