@@ -12,24 +12,45 @@ spec:
     app: coredns
   type: LoadBalancer
 
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: game-demo
+# data:
+#   # property-like keys; each key maps to a simple value
+#   player_initial_lives: "3"
+#   ui_properties_file_name: "user-interface.properties"
+#   #
+#   # file-like keys
+#   game.properties: |
+#     enemy.types=aliens,monsters
+#     player.maximum-lives=5
+#   user-interface.properties: |
+#     color.good=purple
+#     color.bad=yellow
+#     allow.textmode=true
+
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: coredns
+  name: coredns-config
 data:
   Corefile: |
-    . {
-        errors
-        log
-        debug
-        health
-        forward . tls://9.9.9.9 {
-            tls_servername dns.quad9.net
-            health_check 5s
-        }
-        cache 30
-    }
+    enemy.types=aliens,monsters
+    player.maximum-lives=5
+#   Corefile: |
+#     . {
+#         errors
+#         log
+#         debug
+#         health
+#         forward . tls://9.9.9.9 {
+#             tls_servername dns.quad9.net
+#             health_check 5s
+#         }
+#         cache 30
+#     }
 
 ---
 apiVersion: apps/v1
@@ -69,7 +90,7 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: coredns
+          name: coredns-config
           items:
           - key: Corefile
             path: Corefile
